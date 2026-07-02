@@ -1,40 +1,45 @@
-import { useState, useReducer } from 'react'
-import './App.css'
+// src/App.jsx
+import { Routes, Route, NavLink, Outlet } from 'react-router-dom';
+import Home from './pages/Home';
+import Posts from './pages/Posts';
+import PostDetail from './pages/PostDetail';
+import NotFound from './pages/NotFound';
 
-function App() {
-  const initialState = { items: [], total: 0 };
-  
-  function cartReducer(state, action) {
-    switch (action.type) {
-      case 'ADD': {
-        const exists = state.items.find(i => i.id === action.payload.id);
-        const items = exists
-          ? state.items.map(i => i.id === action.payload.id
-              ? { ...i, qty: i.qty + 1 } : i)
-          : [...state.items, { ...action.payload, qty: 1 }];
-        return { items, total: items.reduce((s,i) => s + i.price*i.qty, 0) };
-      }
-      case 'REMOVE': {
-        const items = state.items.filter(i => i.id !== action.payload);
-        return { items, total: items.reduce((s,i) => s + i.price*i.qty, 0) };
-      }
-      case 'CLEAR': return initialState;
-      default: return state;
-    }
-  }
-  
-  function Cart() {
-    const [cart, dispatch] = useReducer(cartReducer, initialState);
-    return (
-      <div>
-        <button onClick={() => dispatch({ type:'ADD', payload: product })}>Thêm</button>
-        <button onClick={() => dispatch({ type:'CLEAR' })}>Xóa tất cả</button>
-        <p>Tổng: {cart.total.toLocaleString('vi-VN')}đ</p>
-      </div>
-    );
-  }
+// Component Layout dùng chung cho toàn bộ ứng dụng
+function MainLayout() {
+  const navStyle = ({ isActive }) => ({
+    color: isActive ? '#007bff' : '#333',
+    fontWeight: isActive ? 'bold' : 'normal',
+    textDecoration: 'none'
+  });
 
-  Cart();
+  return (
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <nav style={{ display: 'flex', gap: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px', marginBottom: '20px' }}>
+        <NavLink to="/" style={navStyle}>Trang chủ</NavLink>
+        <NavLink to="/posts" style={navStyle}>Bài viết</NavLink>
+      </nav>
+
+      {/* Nơi hiển thị nội dung của các Route con (Home, Posts, PostDetail...) */}
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Routes>
+      {/* Route cha bọc lấy các Route con để chia sẻ chung thanh Navbar */}
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
+        <Route path="posts" element={<Posts />} />
+        <Route path="posts/:id" element={<PostDetail />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}
+
+export default App;
