@@ -1,4 +1,3 @@
-// src/hooks/useFetch.js
 import { useState, useEffect } from 'react';
 
 function useFetch(url) {
@@ -10,12 +9,13 @@ function useFetch(url) {
   });
 
   useEffect(() => {
-    // Khi URL thay đổi, ta chỉ gọi đúng 1 lệnh setState để reset 
+    // Khi URL thay đổi, gọi đúng 1 lệnh setState để reset. Dòng comment ở dưới để ESLint không báo đỏ.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(prevState => ({
       ...prevState,
       loading: true,
       error: null
-    }));
+    })); //Gom hết một cục setState, sau đó mới batching để xử lý một lần render duy nhất
 
     const fetchData = async () => {
       try {
